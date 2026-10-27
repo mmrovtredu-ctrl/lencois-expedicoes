@@ -12,9 +12,14 @@ import { ToursSection } from './sections/ToursSection';
 import { PrivateToursSection } from './sections/PrivateToursSection';
 import { ExperiencesSection } from './sections/ExperiencesSection';
 import { ContactSection } from './sections/ContactSection';
+import { LagoonsSection } from './sections/LagoonsSection';
+import { BookingDialog } from './components/booking/BookingDialog';
+import { TripBar, TripCart } from './components/booking/TripCart';
+import { useBooking } from './lib/booking';
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { items } = useBooking();
 
   return (
     <>
@@ -30,12 +35,16 @@ export default function App() {
         <ToursSection />
         <PrivateToursSection />
         <ExperiencesSection />
+        <LagoonsSection />
         <ReservationSteps />
         <FAQ />
         <ContactSection />
       </main>
       <Footer />
-      <WhatsAppButton hidden={menuOpen} />
+      <WhatsAppButton hidden={menuOpen || items.length > 0} />
+      <TripBar hidden={menuOpen} />
+      <BookingDialog />
+      <TripCart />
     </>
   );
 }
