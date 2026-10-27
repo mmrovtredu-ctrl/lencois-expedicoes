@@ -5,7 +5,7 @@ import { formatBRL, priceWithUnit, UNIT_LABEL } from '../lib/format';
 import { useScrollFx } from '../hooks/useScrollFx';
 import { useTilt } from '../hooks/useTilt';
 import { SmartImage } from './SmartImage';
-import { WhatsAppLink } from './WhatsAppLink';
+import { BookButton } from './booking/BookButton';
 
 export function TourCard({ tour }: { tour: Tour }) {
   const wrapRef = useRef<HTMLElement>(null);
@@ -64,14 +64,14 @@ export function TourCard({ tour }: { tour: Tour }) {
             </div>
           </details>
 
-          <WhatsAppLink
-            variant="blue"
+          <BookButton
+            target={{ kind: 'tour', id: tour.id }}
+            fallbackMessage={tour.message(priceWithUnit(tour.price, tour.unit))}
             block
             className="tour-card__cta"
-            message={tour.message(priceWithUnit(tour.price, tour.unit))}
           >
-            Consultar disponibilidade
-          </WhatsAppLink>
+            Escolher data e reservar
+          </BookButton>
         </div>
       </div>
     </article>

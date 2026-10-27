@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { Menu } from 'lucide-react';
+import { Menu, ListChecks } from 'lucide-react';
 import { NAV_ITEMS, SITE } from '../data/site';
 import { onScrollFrame } from '../lib/scrollEngine';
 import { useActiveSection } from '../hooks/useSections';
 import { WhatsAppLink } from './WhatsAppLink';
+import { booking, useBooking } from '../lib/booking';
 
-const SECTION_IDS = ['inicio', 'sobre', 'passeios', 'privativos', 'experiencias', 'reserva', 'duvidas', 'contato'] as const;
+const SECTION_IDS = ['inicio', 'sobre', 'passeios', 'privativos', 'experiencias', 'lagoas', 'reserva', 'duvidas', 'contato'] as const;
 
 interface Props {
   menuOpen: boolean;
@@ -16,6 +17,7 @@ export function Header({ menuOpen, onOpenMenu }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const last = useRef(false);
   const active = useActiveSection(SECTION_IDS);
+  const { items } = useBooking();
 
   useEffect(
     () =>
@@ -53,6 +55,19 @@ export function Header({ menuOpen, onOpenMenu }: Props) {
             ))}
           </ul>
         </nav>
+
+        {items.length ? (
+          <button
+            type="button"
+            className="trip-pill"
+            onClick={() => booking.openCart()}
+            aria-label={`Meu roteiro: ${items.length} ${items.length === 1 ? 'passeio' : 'passeios'}`}
+          >
+            <ListChecks size={18} aria-hidden="true" />
+            <span className="trip-pill__label">Meu roteiro</span>
+            <span className="trip-pill__count">{items.length}</span>
+          </button>
+        ) : null}
 
         <WhatsAppLink size="sm" className="site-header__cta">
           Consultar passeios

@@ -2,16 +2,16 @@ import { WhatsAppLink } from './WhatsAppLink';
 
 const STEPS = [
   {
-    title: 'Escolha seu passeio',
-    text: 'Compare os roteiros, os horários e os valores dos passeios individuais e privativos.',
+    title: 'Monte seu roteiro',
+    text: 'Escolha os passeios, as datas e quantas pessoas vão. O total aparece na hora.',
   },
   {
-    title: 'Fale com a equipe pelo WhatsApp',
-    text: 'Consulte a disponibilidade e alinhe os detalhes da sua data.',
+    title: 'Envie pelo WhatsApp',
+    text: 'A mensagem já vai pronta com tudo o que você escolheu. Sem pagamento no site.',
   },
   {
-    title: 'Receba as orientações',
-    text: 'A agência envia as orientações para você dar continuidade à reserva.',
+    title: 'Receba a confirmação',
+    text: 'A equipe confirma as vagas e combina o pagamento e os detalhes com você.',
   },
 ];
 

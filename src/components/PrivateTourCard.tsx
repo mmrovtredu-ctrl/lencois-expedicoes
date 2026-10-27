@@ -2,7 +2,7 @@ import { Ship } from 'lucide-react';
 import type { PrivateTour } from '../types/tour';
 import { formatBRL } from '../lib/format';
 import { SmartImage } from './SmartImage';
-import { WhatsAppLink } from './WhatsAppLink';
+import { BookButton } from './booking/BookButton';
 
 export function PrivateTourCard({ tour }: { tour: PrivateTour }) {
   const titleId = `${tour.id}-titulo`;
@@ -29,7 +29,13 @@ export function PrivateTourCard({ tour }: { tour: PrivateTour }) {
       </div>
 
       <div className="private-card__actions">
-        <WhatsAppLink message={tour.message(formatBRL(tour.price))}>Consultar passeio privativo</WhatsAppLink>
+        <BookButton
+          target={{ kind: 'private', id: tour.id }}
+          fallbackMessage={tour.message(formatBRL(tour.price))}
+          variant="wa"
+        >
+          Reservar privativo
+        </BookButton>
         {tour.relatedTourId ? (
           <a className="private-card__link" href={`#passeio-${tour.relatedTourId}`}>
             Ver o roteiro do circuito
