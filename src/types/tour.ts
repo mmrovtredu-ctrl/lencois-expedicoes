@@ -5,6 +5,12 @@ export interface ImageAsset {
   alt: string;
 }
 
+/** Janela do passeio em horas decimais (8.5 = 8h30). Usada para avisar conflito no mesmo dia. */
+export interface TimeSlot {
+  start: number;
+  end: number;
+}
+
 /** Unidade de cobrança do passeio individual. */
 export type PriceUnit = 'pessoa' | 'quadriciclo';
 
@@ -16,6 +22,7 @@ export interface Tour {
   summary: string;
   /** Horário documentado no material (portfólio de passeios). */
   schedule: string;
+  slot: TimeSlot;
   highlights: string[];
   /** Roteiro completo, reorganizado a partir do material original. */
   itinerary: string[];
@@ -34,6 +41,8 @@ export interface PrivateTour {
   name: string;
   /** Capacidade documentada (apenas Caburé). */
   capacity?: string;
+  /** Máximo de pessoas, quando documentado. */
+  maxPeople?: number;
   price: number;
   image: ImageAsset;
   /** Passeio individual correspondente, para consulta do roteiro. */
