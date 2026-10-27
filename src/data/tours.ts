@@ -18,6 +18,7 @@ export const TOURS: Tour[] = [
     summary:
       'Balsa pelo Rio Preguiças, trilha de areia pelo cerrado e caminhada pelas principais lagoas e dunas.',
     schedule: 'Saída às 9h, retorno a Barreirinhas às 13h',
+    slot: { start: 9, end: 13 },
     highlights: [
       'Travessia de balsa pelo Rio Preguiças',
       'Cerca de 45 min de trilha até as dunas',
@@ -45,6 +46,7 @@ export const TOURS: Tour[] = [
     summary:
       'Subida de uma duna de 40 metros, mergulho nas lagoas cristalinas e pôr do sol do alto da primeira duna.',
     schedule: 'Saída às 14h, retorno a Barreirinhas às 19h',
+    slot: { start: 14, end: 19 },
     highlights: [
       'Cerca de 1h de trilha em veículo 4x4',
       'Subida por escada em duna de 40 m',
@@ -72,6 +74,7 @@ export const TOURS: Tour[] = [
     summary:
       'Da foz do Rio Preguiças, onde o rio encontra o Atlântico, até o mar e as lagoas do Canto do Atins.',
     schedule: 'Saída às 8h30, retorno a Barreirinhas às 17h',
+    slot: { start: 8.5, end: 17 },
     highlights: [
       'Foz do Rio Preguiças',
       'Canto do Atins, início do Parque Nacional',
@@ -99,6 +102,7 @@ export const TOURS: Tour[] = [
     summary:
       'Descida do Rio Preguiças em lancha voadeira, com paradas em Vassouras, Mandacaru e na praia de Caburé.',
     schedule: 'Saída às 8h30, retorno a Barreirinhas às 15h30',
+    slot: { start: 8.5, end: 15.5 },
     highlights: [
       'Vassouras e os Pequenos Lençóis',
       'Farol Preguiças, em Mandacaru',
@@ -128,6 +132,7 @@ export const TOURS: Tour[] = [
     summary:
       'Você pilota pelos Pequenos Lençóis e pela costa até a praia de Caburé, depois das instruções do guia.',
     schedule: 'Saída às 8h30, retorno a Barreirinhas às 16h',
+    slot: { start: 8.5, end: 16 },
     highlights: [
       'Até 2 pessoas por quadriciclo',
       'Cerca de 2h30 de percurso',
@@ -159,6 +164,7 @@ export const TOURS: Tour[] = [
     },
     summary: 'Flutuação de boia pelas águas cristalinas do Rio Formiga, no povoado de Cardosa.',
     schedule: 'Saída às 8h30, retorno a Barreirinhas às 13h',
+    slot: { start: 8.5, end: 13 },
     highlights: [
       'Cerca de 1h20 de 4x4 até Cardosa',
       'Descida de boia de cerca de 1h',
@@ -186,6 +192,7 @@ export const TOURS: Tour[] = [
     summary:
       'Rali de 4x4 sobre as dunas pelos circuitos de Santo Amaro e Betânia, passando por várias lagoas.',
     schedule: 'Busca nas pousadas a partir das 8h, retorno por volta das 19h às 19h30',
+    slot: { start: 8, end: 19.5 },
     highlights: [
       'Lagoas do Peixe, da Andorinha e da Gaivota',
       'Circuito Betânia: lagoas do Toco, da Ilha e da Piscina',

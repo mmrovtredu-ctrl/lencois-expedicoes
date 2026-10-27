@@ -10,6 +10,7 @@ export const PRIVATE_TOURS: PrivateTour[] = [
     id: 'privativo-cabure',
     name: 'Caburé',
     capacity: 'Lancha de 12 lugares',
+    maxPeople: 12,
     price: 1200,
     relatedTourId: 'cabure',
     image: {

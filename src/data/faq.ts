@@ -51,8 +51,15 @@ export const FAQ: FaqItem[] = [
   {
     question: 'Como consultar disponibilidade e reservar?',
     answer: [
-      'Escolha o passeio e toque em “Consultar disponibilidade”. A conversa abre no WhatsApp com o nome do passeio e o valor já preenchidos.',
-      'A equipe responde com a disponibilidade e as orientações para seguir com a reserva.',
+      'Toque em “Escolher data e reservar” no passeio, escolha o dia e quantas pessoas vão. Você pode adicionar vários passeios ao seu roteiro.',
+      'Ao enviar, a conversa abre no WhatsApp com tudo já escrito: passeios, datas, pessoas e valor estimado. Nada é cobrado no site — a equipe confirma as vagas e combina o pagamento por lá.',
+    ],
+  },
+  {
+    question: 'Qual a melhor época para ver as lagoas cheias?',
+    answer: [
+      'As lagoas enchem com as chuvas do começo do ano e costumam estar mais cheias de maio a agosto. De novembro a fevereiro ficam mais baixas, e a equipe leva o grupo às que estiverem melhores.',
+      'Veja a estimativa mês a mês na seção “Como estão as lagoas” e pergunte à equipe como estão na semana da sua viagem.',
     ],
   },
   {

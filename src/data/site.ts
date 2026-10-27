@@ -22,6 +22,7 @@ export const NAV_ITEMS = [
   { id: 'inicio', label: 'Início' },
   { id: 'passeios', label: 'Passeios' },
   { id: 'privativos', label: 'Privativos' },
+  { id: 'lagoas', label: 'Lagoas' },
   { id: 'sobre', label: 'Sobre' },
   { id: 'contato', label: 'Contato' },
 ] as const;
