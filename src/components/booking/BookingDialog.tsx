@@ -13,11 +13,9 @@ import {
   todayISO,
   useBooking,
   weekdayShort,
-  buildMessage,
   type BookingItem,
 } from '../../lib/booking';
 import { formatBRL } from '../../lib/format';
-import { whatsappLink } from '../../lib/whatsapp';
 import { WhatsAppIcon } from '../Icons';
 import { Counter } from './Counter';
 import { closeOnBackdrop, useDialog } from './useDialog';
@@ -90,7 +88,6 @@ export function BookingDialog() {
     else setAdded(true);
   };
 
-  const directLink = whatsappLink(buildMessage([{ ...draft, key: 'x' }], contact));
   const combos = added ? sameDayCombos(open.id, open.kind) : [];
 
   return (
@@ -285,18 +282,18 @@ export function BookingDialog() {
                   {editing ? 'Salvar alterações' : 'Adicionar ao meu roteiro'}
                 </button>
                 {!editing ? (
-                  <a
+                  <button
+                    type="button"
                     className="btn btn--wa btn--block"
-                    href={directLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => {
-                      if (!requireDate()) e.preventDefault();
+                    onClick={() => {
+                      if (!requireDate()) return;
+                      booking.upsert(draft);
+                      booking.openCart();
                     }}
                   >
                     <WhatsAppIcon size={18} />
-                    <span>Reservar só este pelo WhatsApp</span>
-                  </a>
+                    <span>Reservar só este passeio</span>
+                  </button>
                 ) : null}
               </div>
             </footer>

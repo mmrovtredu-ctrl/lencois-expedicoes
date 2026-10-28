@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { AlertTriangle, ChevronRight, Pencil, Trash2, X } from 'lucide-react';
 import {
   booking,
@@ -9,6 +9,9 @@ import {
   hasChildrenToConfirm,
   itemTotal,
   useBooking,
+  formatCPF,
+  validateContact,
+  type ContactErrors,
 } from '../../lib/booking';
 import { formatBRL } from '../../lib/format';
 import { whatsappLink } from '../../lib/whatsapp';
@@ -60,6 +63,39 @@ export function TripCart() {
   const total = items.reduce((s, i) => s + itemTotal(i), 0);
   const pending = items.some(hasChildrenToConfirm);
   const message = buildMessage(items, contact);
+  const [errors, setErrors] = useState<ContactErrors>({});
+  const [tried, setTried] = useState(false);
+
+  // Depois da 1ª tentativa de envio, revalida enquanto a pessoa corrige.
+  const update = (patch: Parameters<typeof booking.setContact>[0]) => {
+    booking.setContact(patch);
+    if (tried) setErrors(validateContact({ ...contact, ...patch }));
+  };
+
+  const onSend = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const errs = validateContact(contact);
+    setTried(true);
+    setErrors(errs);
+    const first = (['name', 'email', 'cpf'] as const).find((k) => errs[k]);
+    if (first) {
+      e.preventDefault();
+      const el = ref.current?.querySelector<HTMLInputElement>(`#roteiro-${first}`);
+      el?.focus();
+      el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+  };
+
+  const fieldProps = (k: keyof ContactErrors) => ({
+    id: `roteiro-${k}`,
+    'aria-invalid': !!errors[k] || undefined,
+    'aria-describedby': errors[k] ? `roteiro-${k}-erro` : undefined,
+  });
+  const errorMsg = (k: keyof ContactErrors) =>
+    errors[k] ? (
+      <p className="field-error" id={`roteiro-${k}-erro`}>
+        {errors[k]}
+      </p>
+    ) : null;
 
   return (
     <dialog
@@ -139,32 +175,72 @@ export function TripCart() {
                 + Adicionar outro passeio
               </a>
 
-              <div className="field">
-                <label className="field-title" htmlFor="roteiro-nome">
-                  Seu nome <small>(opcional)</small>
-                </label>
-                <input
-                  id="roteiro-nome"
-                  type="text"
-                  autoComplete="given-name"
-                  placeholder="Como podemos te chamar?"
-                  value={contact.name}
-                  onChange={(e) => booking.setContact({ name: e.target.value })}
-                />
-              </div>
-              <div className="field">
-                <label className="field-title" htmlFor="roteiro-hospedagem">
-                  Hospedagem em Barreirinhas <small>(opcional)</small>
-                </label>
-                <input
-                  id="roteiro-hospedagem"
-                  type="text"
-                  autoComplete="off"
-                  placeholder="Nome da pousada ou hotel"
-                  value={contact.pickup}
-                  onChange={(e) => booking.setContact({ pickup: e.target.value })}
-                />
-              </div>
+              <fieldset className="contact-fields">
+                <legend className="field-title">Seus dados para a reserva</legend>
+                <div className="field">
+                  <label className="field-label" htmlFor="roteiro-name">
+                    Nome completo <span className="req">*</span>
+                  </label>
+                  <input
+                    {...fieldProps('name')}
+                    type="text"
+                    autoComplete="name"
+                    required
+                    placeholder="Seu nome e sobrenome"
+                    value={contact.name}
+                    onChange={(e) => update({ name: e.target.value })}
+                  />
+                  {errorMsg('name')}
+                </div>
+                <div className="field">
+                  <label className="field-label" htmlFor="roteiro-email">
+                    E-mail <span className="req">*</span>
+                  </label>
+                  <input
+                    {...fieldProps('email')}
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    required
+                    placeholder="voce@email.com"
+                    value={contact.email}
+                    onChange={(e) => update({ email: e.target.value })}
+                  />
+                  {errorMsg('email')}
+                </div>
+                <div className="field">
+                  <label className="field-label" htmlFor="roteiro-cpf">
+                    CPF <small>(opcional)</small>
+                  </label>
+                  <input
+                    {...fieldProps('cpf')}
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    placeholder="000.000.000-00"
+                    maxLength={14}
+                    value={contact.cpf}
+                    onChange={(e) => update({ cpf: formatCPF(e.target.value) })}
+                  />
+                  {errorMsg('cpf')}
+                  <p className="field-help">Agiliza o cadastro do passeio. Não fica salvo no site.</p>
+                </div>
+                <div className="field">
+                  <label className="field-label" htmlFor="roteiro-hospedagem">
+                    Hospedagem em Barreirinhas <small>(opcional)</small>
+                  </label>
+                  <input
+                    id="roteiro-hospedagem"
+                    type="text"
+                    autoComplete="off"
+                    placeholder="Nome da pousada ou hotel"
+                    value={contact.pickup}
+                    onChange={(e) => update({ pickup: e.target.value })}
+                  />
+                </div>
+              </fieldset>
             </>
           )}
         </div>
@@ -177,7 +253,7 @@ export function TripCart() {
               <span className="sheet__total-note">{pending ? '+ crianças (a confirmar)' : plural(items.length)}</span>
             </div>
             <div className="sheet__actions">
-              <a className="btn btn--wa btn--lg btn--block" href={whatsappLink(message)} target="_blank" rel="noopener noreferrer">
+              <a className="btn btn--wa btn--lg btn--block" href={whatsappLink(message)} target="_blank" rel="noopener noreferrer" onClick={onSend}>
                 <WhatsAppIcon size={19} />
                 <span>Enviar roteiro pelo WhatsApp</span>
               </a>
