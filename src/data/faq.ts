@@ -51,7 +51,7 @@ export const FAQ: FaqItem[] = [
   {
     question: 'Como consultar disponibilidade e reservar?',
     answer: [
-      'Toque em “Escolher data e reservar” no passeio, escolha o dia e quantas pessoas vão. Você pode adicionar vários passeios ao seu roteiro.',
+      'Toque em “Escolher data e reservar” no passeio, escolha o dia e quantas pessoas vão. Você pode adicionar vários passeios ao seu roteiro e, no fim, informa nome e e-mail (CPF é opcional).',
       'Ao enviar, a conversa abre no WhatsApp com tudo já escrito: passeios, datas, pessoas e valor estimado. Nada é cobrado no site — a equipe confirma as vagas e combina o pagamento por lá.',
     ],
   },
