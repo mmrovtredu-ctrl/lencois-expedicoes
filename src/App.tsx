@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Header } from './components/Header';
 import { MobileMenu } from './components/MobileMenu';
 import { Hero } from './components/Hero';
@@ -16,10 +16,13 @@ import { LagoonsSection } from './sections/LagoonsSection';
 import { BookingDialog } from './components/booking/BookingDialog';
 import { TripBar, TripCart } from './components/booking/TripCart';
 import { useBooking } from './lib/booking';
+import { initAnalytics } from './lib/analytics';
+import { ConsentBanner } from './components/ConsentBanner';
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { items } = useBooking();
+  useEffect(() => initAnalytics(), []);
 
   return (
     <>
@@ -45,6 +48,7 @@ export default function App() {
       <TripBar hidden={menuOpen} />
       <BookingDialog />
       <TripCart />
+      <ConsentBanner />
     </>
   );
 }
