@@ -2717,3 +2717,49 @@ fieldset {
     display: none;
   }
 }
+
+/* Dados do cliente */
+.contact-fields {
+  display: grid;
+  gap: 14px;
+  margin-top: 6px;
+}
+.contact-fields .field-title {
+  margin-bottom: 0;
+}
+.field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 650;
+  font-size: 0.9375rem;
+}
+.field-label small {
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+.req {
+  color: #b42318;
+}
+.field input[type='email'] {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--sand-line);
+  border-radius: var(--r-sm);
+  background: #fff;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--ink);
+}
+.field input[aria-invalid='true'] {
+  border-color: #d92d20;
+  box-shadow: 0 0 0 3px rgb(217 45 32 / 0.12);
+}
+.field-error {
+  margin-top: 6px;
+}
+.field-help {
+  margin-top: 6px;
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
