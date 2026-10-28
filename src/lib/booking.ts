@@ -30,6 +30,9 @@ export interface BookingItem extends BookingTarget {
 
 export interface TripContact {
   name: string;
+  email: string;
+  /** Opcional. Só vai na mensagem; não é salvo no navegador. */
+  cpf: string;
   pickup: string;
 }
 
@@ -42,7 +45,7 @@ interface State {
 }
 
 const STORAGE_KEY = 'le-roteiro-v1';
-const EMPTY: State = { items: [], contact: { name: '', pickup: '' }, open: null, cartOpen: false };
+const EMPTY: State = { items: [], contact: { name: '', email: '', cpf: '', pickup: '' }, open: null, cartOpen: false };
 
 let state: State = EMPTY;
 let hydrated = false;
@@ -54,7 +57,7 @@ function emit() {
 
 function persist() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ items: state.items, contact: state.contact }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ items: state.items, contact: { ...state.contact, cpf: '' } }));
   } catch {
     /* modo privado / armazenamento bloqueado: o roteiro vale só nesta visita */
   }
@@ -288,6 +291,8 @@ export function buildMessage(items: BookingItem[], contact: TripContact) {
     lines.push(`*Total estimado: ${formatBRL(total)}*${pending ? ' (sem o valor das crianças)' : ''}`, '');
   }
   if (contact.name.trim()) lines.push(`Nome: ${contact.name.trim()}`);
+  if (contact.email.trim()) lines.push(`E-mail: ${contact.email.trim()}`);
+  if (onlyDigits(contact.cpf).length === 11) lines.push(`CPF: ${formatCPF(contact.cpf)}`);
   if (contact.pickup.trim()) lines.push(`Hospedagem em Barreirinhas: ${contact.pickup.trim()}`);
   lines.push(items.length > 1 ? 'Podem confirmar a disponibilidade?' : 'Pode confirmar a disponibilidade?');
   return lines.join('\n');
@@ -300,4 +305,43 @@ export function lagoonHintFor(target: BookingTarget, iso: string) {
   const baseId = t?.tour?.id ?? t?.privateTour?.relatedTourId;
   if (!baseId || !LAGOON_TOURS.has(baseId) || !iso) return null;
   return lagoonStatus(parseISO(iso).getMonth());
+}
+
+/* ---------- Dados do cliente ---------- */
+
+export const onlyDigits = (s: string) => s.replace(/\D/g, '');
+
+/** 000.000.000-00 enquanto digita. */
+export function formatCPF(s: string) {
+  const d = onlyDigits(s).slice(0, 11);
+  return d
+    .replace(/^(\d{3})(\d)/, '$1.$2')
+    .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d{1,2})$/, '.$1-$2');
+}
+
+/** Valida os dígitos verificadores do CPF. */
+export function isValidCPF(s: string) {
+  const d = onlyDigits(s);
+  if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false;
+  const calc = (len: number) => {
+    let sum = 0;
+    for (let i = 0; i < len; i++) sum += Number(d[i]) * (len + 1 - i);
+    const r = (sum * 10) % 11;
+    return r === 10 ? 0 : r;
+  };
+  return calc(9) === Number(d[9]) && calc(10) === Number(d[10]);
+}
+
+export const isValidEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s.trim());
+
+export type ContactErrors = Partial<Record<'name' | 'email' | 'cpf', string>>;
+
+export function validateContact(c: TripContact): ContactErrors {
+  const e: ContactErrors = {};
+  if (c.name.trim().length < 3) e.name = 'Informe seu nome.';
+  if (!c.email.trim()) e.email = 'Informe seu e-mail.';
+  else if (!isValidEmail(c.email)) e.email = 'E-mail inválido. Confira o endereço.';
+  if (onlyDigits(c.cpf).length > 0 && !isValidCPF(c.cpf)) e.cpf = 'CPF inválido. Confira os números ou deixe em branco.';
+  return e;
 }
