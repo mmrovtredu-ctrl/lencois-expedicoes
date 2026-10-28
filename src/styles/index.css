@@ -2763,3 +2763,39 @@ fieldset {
   font-size: 0.8125rem;
   color: var(--ink-soft);
 }
+
+/* Aviso de cookies */
+.consent {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: calc(var(--z-header) + 1);
+  display: grid;
+  gap: 12px;
+  max-width: 520px;
+  margin-inline: auto;
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  box-shadow: 0 20px 50px -18px rgb(4 30 48 / 0.6);
+}
+.consent__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+@media (min-width: 720px) {
+  .consent {
+    left: auto;
+    right: 24px;
+    bottom: 24px;
+    margin: 0;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    max-width: 640px;
+  }
+}
