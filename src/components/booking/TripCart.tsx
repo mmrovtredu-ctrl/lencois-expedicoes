@@ -12,7 +12,9 @@ import {
   formatCPF,
   validateContact,
   type ContactErrors,
+  analyticsItems,
 } from '../../lib/booking';
+import { track } from '../../lib/analytics';
 import { formatBRL } from '../../lib/format';
 import { whatsappLink } from '../../lib/whatsapp';
 import { WhatsAppIcon } from '../Icons';
@@ -77,8 +79,12 @@ export function TripCart() {
     setTried(true);
     setErrors(errs);
     const first = (['name', 'email', 'cpf'] as const).find((k) => errs[k]);
-    if (first) {
-      e.preventDefault();
+    if (!first) {
+      track('generate_lead', { currency: 'BRL', ...analyticsItems(items) });
+      return;
+    }
+    e.preventDefault();
+    {
       const el = ref.current?.querySelector<HTMLInputElement>(`#roteiro-${first}`);
       el?.focus();
       el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -253,7 +259,7 @@ export function TripCart() {
               <span className="sheet__total-note">{pending ? '+ crianças (a confirmar)' : plural(items.length)}</span>
             </div>
             <div className="sheet__actions">
-              <a className="btn btn--wa btn--lg btn--block" href={whatsappLink(message)} target="_blank" rel="noopener noreferrer" onClick={onSend}>
+              <a className="btn btn--wa btn--lg btn--block" href={whatsappLink(message)} target="_blank" rel="noopener noreferrer" onClick={onSend} data-lead>
                 <WhatsAppIcon size={19} />
                 <span>Enviar roteiro pelo WhatsApp</span>
               </a>
