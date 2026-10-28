@@ -4,6 +4,7 @@ import { PRIVATE_TOURS } from '../data/privateTours';
 import { lagoonStatus } from '../data/lagoons';
 import type { PrivateTour, TimeSlot, Tour } from '../types/tour';
 import { formatBRL } from './format';
+import { track } from './analytics';
 
 /* =========================================================
    Reserva + "Meu roteiro"
@@ -106,12 +107,16 @@ export function useBooking(): State {
 export const booking = {
   open(target: BookingTarget, editKey?: string) {
     set({ open: { ...target, editKey }, cartOpen: false });
+    const t = findTarget(target);
+    if (t && !editKey)
+      track('view_item', { currency: 'BRL', value: t.price, items: [{ item_id: target.id, item_name: t.name, price: t.price }] });
   },
   close() {
     set({ open: null });
   },
   openCart() {
     set({ cartOpen: true, open: null });
+    if (state.items.length) track('begin_checkout', { currency: 'BRL', ...analyticsItems(state.items) });
   },
   closeCart() {
     set({ cartOpen: false });
@@ -121,6 +126,7 @@ export const booking = {
       ? state.items.map((i) => (i.key === key ? { ...item, key } : i))
       : [...state.items, { ...item, key: `${item.id}-${Date.now().toString(36)}` }];
     set({ items: sortItems(items) }, true);
+    if (!key) track('add_to_cart', { currency: 'BRL', ...analyticsItems([{ ...item, key: '' }]) });
   },
   remove(key: string) {
     set({ items: state.items.filter((i) => i.key !== key) }, true);
@@ -344,4 +350,15 @@ export function validateContact(c: TripContact): ContactErrors {
   else if (!isValidEmail(c.email)) e.email = 'E-mail inválido. Confira o endereço.';
   if (onlyDigits(c.cpf).length > 0 && !isValidCPF(c.cpf)) e.cpf = 'CPF inválido. Confira os números ou deixe em branco.';
   return e;
+}
+
+/** Itens no formato de e-commerce do GA4 (value = total estimado). */
+export function analyticsItems(items: BookingItem[]) {
+  return {
+    value: items.reduce((s, i) => s + itemTotal(i), 0),
+    items: items.map((i) => {
+      const t = findTarget(i);
+      return { item_id: i.id, item_name: t?.name ?? i.id, price: itemTotal(i), quantity: 1, item_category: i.kind };
+    }),
+  };
 }
