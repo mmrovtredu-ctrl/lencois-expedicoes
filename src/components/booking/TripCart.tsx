@@ -9,7 +9,6 @@ import {
   hasChildrenToConfirm,
   itemTotal,
   useBooking,
-  formatCPF,
   validateContact,
   type ContactErrors,
   analyticsItems,
@@ -19,6 +18,7 @@ import { formatBRL } from '../../lib/format';
 import { whatsappLink } from '../../lib/whatsapp';
 import { WhatsAppIcon } from '../Icons';
 import { closeOnBackdrop, useDialog } from './useDialog';
+import { ContactFields, checkContact } from './ContactFields';
 
 /** Fecha o roteiro e rola até os passeios (o <dialog> aberto trava a rolagem da página). */
 function goToTours(e: React.MouseEvent) {
@@ -75,33 +75,13 @@ export function TripCart() {
   };
 
   const onSend = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const errs = validateContact(contact);
     setTried(true);
-    setErrors(errs);
-    const first = (['name', 'email', 'cpf'] as const).find((k) => errs[k]);
-    if (!first) {
+    if (checkContact(contact, 'roteiro', ref.current, setErrors)) {
       track('generate_lead', { currency: 'BRL', ...analyticsItems(items) });
       return;
     }
     e.preventDefault();
-    {
-      const el = ref.current?.querySelector<HTMLInputElement>(`#roteiro-${first}`);
-      el?.focus();
-      el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    }
   };
-
-  const fieldProps = (k: keyof ContactErrors) => ({
-    id: `roteiro-${k}`,
-    'aria-invalid': !!errors[k] || undefined,
-    'aria-describedby': errors[k] ? `roteiro-${k}-erro` : undefined,
-  });
-  const errorMsg = (k: keyof ContactErrors) =>
-    errors[k] ? (
-      <p className="field-error" id={`roteiro-${k}-erro`}>
-        {errors[k]}
-      </p>
-    ) : null;
 
   return (
     <dialog
@@ -181,72 +161,13 @@ export function TripCart() {
                 + Adicionar outro passeio
               </a>
 
-              <fieldset className="contact-fields">
-                <legend className="field-title">Seus dados para a reserva</legend>
-                <div className="field">
-                  <label className="field-label" htmlFor="roteiro-name">
-                    Nome completo <span className="req">*</span>
-                  </label>
-                  <input
-                    {...fieldProps('name')}
-                    type="text"
-                    autoComplete="name"
-                    required
-                    placeholder="Seu nome e sobrenome"
-                    value={contact.name}
-                    onChange={(e) => update({ name: e.target.value })}
-                  />
-                  {errorMsg('name')}
-                </div>
-                <div className="field">
-                  <label className="field-label" htmlFor="roteiro-email">
-                    E-mail <span className="req">*</span>
-                  </label>
-                  <input
-                    {...fieldProps('email')}
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    autoCapitalize="off"
-                    spellCheck={false}
-                    required
-                    placeholder="voce@email.com"
-                    value={contact.email}
-                    onChange={(e) => update({ email: e.target.value })}
-                  />
-                  {errorMsg('email')}
-                </div>
-                <div className="field">
-                  <label className="field-label" htmlFor="roteiro-cpf">
-                    CPF <small>(opcional)</small>
-                  </label>
-                  <input
-                    {...fieldProps('cpf')}
-                    type="text"
-                    inputMode="numeric"
-                    autoComplete="off"
-                    placeholder="000.000.000-00"
-                    maxLength={14}
-                    value={contact.cpf}
-                    onChange={(e) => update({ cpf: formatCPF(e.target.value) })}
-                  />
-                  {errorMsg('cpf')}
-                  <p className="field-help">Agiliza o cadastro do passeio. Não fica salvo no site.</p>
-                </div>
-                <div className="field">
-                  <label className="field-label" htmlFor="roteiro-hospedagem">
-                    Hospedagem em Barreirinhas <small>(opcional)</small>
-                  </label>
-                  <input
-                    id="roteiro-hospedagem"
-                    type="text"
-                    autoComplete="off"
-                    placeholder="Nome da pousada ou hotel"
-                    value={contact.pickup}
-                    onChange={(e) => update({ pickup: e.target.value })}
-                  />
-                </div>
-              </fieldset>
+              <ContactFields
+                idPrefix="roteiro"
+                contact={contact}
+                errors={errors}
+                onChange={update}
+                title="Confira seus dados"
+              />
             </>
           )}
         </div>

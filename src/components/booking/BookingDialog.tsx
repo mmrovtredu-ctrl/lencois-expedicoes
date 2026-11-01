@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { CalendarDays, Check, Clock, Droplets, MapPin, X } from 'lucide-react';
+import { CalendarDays, Check, Clock, Droplets, X } from 'lucide-react';
 import {
   booking,
   findTarget,
@@ -14,10 +14,13 @@ import {
   useBooking,
   weekdayShort,
   type BookingItem,
+  type ContactErrors,
+  validateContact,
 } from '../../lib/booking';
 import { formatBRL } from '../../lib/format';
 import { WhatsAppIcon } from '../Icons';
 import { Counter } from './Counter';
+import { ContactFields, checkContact } from './ContactFields';
 import { closeOnBackdrop, useDialog } from './useDialog';
 
 const QUICK_DAYS = 14;
@@ -38,6 +41,8 @@ export function BookingDialog() {
   const [vehicles, setVehicles] = useState(1);
   const [dateError, setDateError] = useState(false);
   const [added, setAdded] = useState(false);
+  const [errors, setErrors] = useState<ContactErrors>({});
+  const [tried, setTried] = useState(false);
 
   // Reinicia o formulário a cada abertura (ou carrega o item em edição).
   useEffect(() => {
@@ -48,6 +53,8 @@ export function BookingDialog() {
     setVehicles(editing?.vehicles ?? 1);
     setDateError(false);
     setAdded(false);
+    setErrors({});
+    setTried(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open?.id, open?.kind, open?.editKey]);
 
@@ -74,15 +81,26 @@ export function BookingDialog() {
     }
   };
 
-  const requireDate = () => {
-    if (date) return true;
-    setDateError(true);
-    ref.current?.querySelector<HTMLElement>('.date-pick')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    return false;
+
+  /** Data + nome + local de embarque. Mostra os erros e leva ao primeiro. */
+  const validate = () => {
+    setTried(true);
+    if (!date) {
+      setDateError(true);
+      ref.current?.querySelector<HTMLElement>('.date-pick')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      setErrors(validateContact(contact));
+      return false;
+    }
+    return checkContact(contact, 'reserva', ref.current, setErrors);
+  };
+
+  const updateContact = (patch: Parameters<typeof booking.setContact>[0]) => {
+    booking.setContact(patch);
+    if (tried) setErrors(validateContact({ ...contact, ...patch }));
   };
 
   const add = () => {
-    if (!requireDate()) return;
+    if (!validate()) return;
     booking.upsert(draft, editing?.key);
     if (editing) booking.openCart();
     else setAdded(true);
@@ -246,23 +264,18 @@ export function BookingDialog() {
                 ) : null}
               </fieldset>
 
-              {/* 3. Hospedagem */}
-              <div className="field">
-                <label className="field-title" htmlFor="reserva-hospedagem">
-                  <span className="field-step">3</span> Onde vai se hospedar? <small>(opcional)</small>
-                </label>
-                <div className="input-icon">
-                  <MapPin size={18} aria-hidden="true" />
-                  <input
-                    id="reserva-hospedagem"
-                    type="text"
-                    autoComplete="off"
-                    placeholder="Nome da pousada ou hotel"
-                    value={contact.pickup}
-                    onChange={(e) => booking.setContact({ pickup: e.target.value })}
-                  />
-                </div>
-              </div>
+              {/* 3. Dados do cliente */}
+              <ContactFields
+                idPrefix="reserva"
+                contact={contact}
+                errors={errors}
+                onChange={updateContact}
+                title={
+                  <>
+                    <span className="field-step">3</span> Seus dados
+                  </>
+                }
+              />
             </div>
 
             <footer className="sheet__foot">
@@ -286,7 +299,7 @@ export function BookingDialog() {
                     type="button"
                     className="btn btn--wa btn--block"
                     onClick={() => {
-                      if (!requireDate()) return;
+                      if (!validate()) return;
                       booking.upsert(draft);
                       booking.openCart();
                     }}
