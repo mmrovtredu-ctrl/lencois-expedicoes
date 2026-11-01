@@ -50,6 +50,7 @@ export function ContactFields({ idPrefix, contact, errors, onChange, title }: Pr
         {label('name', 'Nome completo', true)}
         <input
           {...a11y('name')}
+          enterKeyHint="next"
           type="text"
           autoComplete="name"
           required
@@ -66,6 +67,7 @@ export function ContactFields({ idPrefix, contact, errors, onChange, title }: Pr
           <MapPin size={18} aria-hidden="true" />
           <input
             {...a11y('pickup')}
+          enterKeyHint="next"
             type="text"
             autoComplete="off"
             required
@@ -83,6 +85,7 @@ export function ContactFields({ idPrefix, contact, errors, onChange, title }: Pr
           {label('phone', 'Telefone / WhatsApp')}
           <input
             {...a11y('phone')}
+          enterKeyHint="next"
             type="tel"
             inputMode="tel"
             autoComplete="tel-national"
@@ -97,6 +100,7 @@ export function ContactFields({ idPrefix, contact, errors, onChange, title }: Pr
           {label('email', 'E-mail')}
           <input
             {...a11y('email')}
+          enterKeyHint="next"
             type="email"
             inputMode="email"
             autoComplete="email"
@@ -115,6 +119,7 @@ export function ContactFields({ idPrefix, contact, errors, onChange, title }: Pr
           {label('cpf', 'CPF')}
           <input
             {...a11y('cpf')}
+          enterKeyHint="next"
             type="text"
             inputMode="numeric"
             autoComplete="off"
@@ -129,6 +134,7 @@ export function ContactFields({ idPrefix, contact, errors, onChange, title }: Pr
           {label('address', 'Endereço')}
           <input
             {...a11y('address')}
+            enterKeyHint="done"
             type="text"
             autoComplete="street-address"
             placeholder="Rua, número, cidade/UF"
