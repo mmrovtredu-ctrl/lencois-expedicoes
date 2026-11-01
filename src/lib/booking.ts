@@ -30,12 +30,19 @@ export interface BookingItem extends BookingTarget {
 }
 
 export interface TripContact {
+  /** Obrigatório. */
   name: string;
+  /** Obrigatório: pousada, hotel ou endereço em Barreirinhas onde a equipe busca. */
+  pickup: string;
+  phone: string;
   email: string;
   /** Opcional. Só vai na mensagem; não é salvo no navegador. */
   cpf: string;
-  pickup: string;
+  /** Endereço residencial (opcional). */
+  address: string;
 }
+
+export const EMPTY_CONTACT: TripContact = { name: '', pickup: '', phone: '', email: '', cpf: '', address: '' };
 
 interface State {
   items: BookingItem[];
@@ -46,7 +53,7 @@ interface State {
 }
 
 const STORAGE_KEY = 'le-roteiro-v1';
-const EMPTY: State = { items: [], contact: { name: '', email: '', cpf: '', pickup: '' }, open: null, cartOpen: false };
+const EMPTY: State = { items: [], contact: EMPTY_CONTACT, open: null, cartOpen: false };
 
 let state: State = EMPTY;
 let hydrated = false;
@@ -296,10 +303,15 @@ export function buildMessage(items: BookingItem[], contact: TripContact) {
     const pending = items.some(hasChildrenToConfirm);
     lines.push(`*Total estimado: ${formatBRL(total)}*${pending ? ' (sem o valor das crianças)' : ''}`, '');
   }
-  if (contact.name.trim()) lines.push(`Nome: ${contact.name.trim()}`);
-  if (contact.email.trim()) lines.push(`E-mail: ${contact.email.trim()}`);
-  if (onlyDigits(contact.cpf).length === 11) lines.push(`CPF: ${formatCPF(contact.cpf)}`);
-  if (contact.pickup.trim()) lines.push(`Hospedagem em Barreirinhas: ${contact.pickup.trim()}`);
+  const c = contact;
+  lines.push('*Dados do cliente*');
+  if (c.name.trim()) lines.push(`Nome: ${c.name.trim()}`);
+  if (c.pickup.trim()) lines.push(`Local de embarque: ${c.pickup.trim()}`);
+  if (onlyDigits(c.phone).length >= 10) lines.push(`Telefone: ${formatPhone(c.phone)}`);
+  if (c.email.trim()) lines.push(`E-mail: ${c.email.trim()}`);
+  if (onlyDigits(c.cpf).length === 11) lines.push(`CPF: ${formatCPF(c.cpf)}`);
+  if (c.address.trim()) lines.push(`Endereço: ${c.address.trim()}`);
+  lines.push('');
   lines.push(items.length > 1 ? 'Podem confirmar a disponibilidade?' : 'Pode confirmar a disponibilidade?');
   return lines.join('\n');
 }
@@ -341,13 +353,27 @@ export function isValidCPF(s: string) {
 
 export const isValidEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s.trim());
 
-export type ContactErrors = Partial<Record<'name' | 'email' | 'cpf', string>>;
+/** (98) 99999-9999 / (98) 3333-3333 enquanto digita. */
+export function formatPhone(s: string) {
+  const d = onlyDigits(s).slice(0, 11);
+  if (d.length <= 2) return d.length ? `(${d}` : '';
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
 
+export const CONTACT_FIELDS = ['name', 'pickup', 'phone', 'email', 'cpf', 'address'] as const;
+export type ContactField = (typeof CONTACT_FIELDS)[number];
+export type ContactErrors = Partial<Record<ContactField, string>>;
+
+/** Obrigatórios: nome e local de embarque. Opcionais só são checados se preenchidos. */
 export function validateContact(c: TripContact): ContactErrors {
   const e: ContactErrors = {};
   if (c.name.trim().length < 3) e.name = 'Informe seu nome.';
-  if (!c.email.trim()) e.email = 'Informe seu e-mail.';
-  else if (!isValidEmail(c.email)) e.email = 'E-mail inválido. Confira o endereço.';
+  if (c.pickup.trim().length < 3) e.pickup = 'Informe onde a equipe vai te buscar.';
+  const phone = onlyDigits(c.phone);
+  if (phone.length > 0 && (phone.length < 10 || phone.length > 11)) e.phone = 'Telefone incompleto. Use DDD + número.';
+  if (c.email.trim() && !isValidEmail(c.email)) e.email = 'E-mail inválido. Confira ou deixe em branco.';
   if (onlyDigits(c.cpf).length > 0 && !isValidCPF(c.cpf)) e.cpf = 'CPF inválido. Confira os números ou deixe em branco.';
   return e;
 }
